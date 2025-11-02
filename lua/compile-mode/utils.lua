@@ -67,27 +67,44 @@ end
 
 ---@param input string
 ---@param pattern string
+---@param compiled_rx vim.regex|nil
 ---@return (CompileModeRange|nil)[]
-function M.matchlistpos(input, pattern)
+function M.matchlistpos(input, pattern, compiled_rx)
+	local result = {} ---@type (CompileModeIntByInt|nil)[]
+	local rx = compiled_rx or vim.regex(pattern)
+	local s0, e0 = rx:match_str(input)
+	if not s0 then
+		return result
+	end
+
 	local list = vim.fn.matchlist(input, pattern) --[[@as string[] ]]
+	if not list or #list == 0 then
+		return result
+	end
 
-	---@type (CompileModeIntByInt|nil)[]
-	local result = {}
+	local seg_start = s0 + 1
+	local seg = string.sub(input, seg_start, e0)
 
-	local latest_index = vim.fn.match(input, pattern)
+	local cursor = 1
+
 	for i, capture in ipairs(list) do
-		if capture == "" then
-			result[i] = nil
-		else
-			local start, end_ = string.find(input, capture, latest_index, true)
-			assert(start and end_)
-			if i ~= 1 then
-				latest_index = end_ + 1
+		if capture ~= "" then
+			local s, e = string.find(seg, capture, cursor, true)
+			if not s then
+				s, e = string.find(seg, capture, 1, true)
 			end
-			result[i] = {
-				start = start,
-				end_ = end_,
-			}
+			if s and e then
+				local abs_s = seg_start + s - 1
+				local abs_e = seg_start + e - 1
+				result[i] = { start = abs_s, end_ = abs_e }
+				if i ~= 1 then
+					cursor = e + 1
+				end
+			else
+				result[i] = nil
+			end
+		else
+			result[i] = nil
 		end
 	end
 
@@ -113,7 +130,7 @@ function M.buf_set_opt(bufnr, opt, value)
 end
 
 ---If `fname` has a window open, do nothing.
----Otherwise, split a new window (and possibly buffer) open for that file, respecting `config.split_vertically`.
+---Otherwise, split a new window (and possibly buffer) open for that file, respecting split mods.
 ---
 ---@param opts { fname: string } | { bufnr: integer }
 ---@param smods SMods
@@ -134,27 +151,10 @@ function M.split_unless_open(opts, smods, count)
 	local winnrs = vim.fn.win_findbuf(bufnr)
 
 	if #winnrs == 0 then
-		local cmd = "sbuffer " .. bufnr
-		if smods.vertical then
-			cmd = "vert " .. cmd
-		end
-
-		if smods.split and smods.split ~= "" then
-			cmd = smods.split .. " " .. cmd
-		end
-
-		if smods.tab and smods.tab ~= -1 then
-			cmd = tostring(smods.tab) .. "tab " .. cmd
-		end
-
-		vim.cmd(cmd)
+		vim.cmd({ cmd = "sbuffer", args = { bufnr }, mods = smods })
 
 		if count ~= 0 and count ~= nil then
-			local resize_cmd = "resize" .. count
-			if smods.vertical then
-				resize_cmd = "vert " .. resize_cmd
-			end
-			vim.cmd(resize_cmd)
+			vim.cmd({ cmd = "resize", args = { count }, mods = smods })
 		end
 	end
 

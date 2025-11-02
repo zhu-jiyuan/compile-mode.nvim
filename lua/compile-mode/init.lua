@@ -7,11 +7,12 @@
 
 ---@class SMods
 ---
----@field vertical? boolean
----@field silent?   boolean
----@field hide?     boolean
----@field tab?      integer
----@field split?    SplitModifier
+---@field vertical?   boolean
+---@field silent?     boolean
+---@field hide?       boolean
+---@field tab?        integer
+---@field split?      SplitModifier
+---@field noswapfile? boolean
 
 ---@class CommandParam
 ---
@@ -147,6 +148,10 @@ local runjob = a.wrap(
 					line = vim.fn.substitute(line, re, "", "")
 					new_lines[i] = line
 				end
+
+				if new_lines[i]:sub(-1) == "\r" then
+					new_lines[i] = new_lines[i]:sub(1, -2)
+				end
 			end
 
 			set_lines(bufnr, -2, -1, new_lines)
@@ -198,7 +203,7 @@ end
 
 ---Get the default directory, formatted.
 local function default_dir()
-	local cwd = vim.fn.getcwd() --[[@as string]]
+	local cwd = compilation_directory or vim.fn.getcwd() --[[@as string]]
 	return cwd:gsub("^" .. vim.env.HOME, "~")
 end
 
@@ -246,18 +251,29 @@ local runcommand = a.void(
 		log.debug("opening compilation buffer...")
 
 		local prev_win = vim.api.nvim_get_current_win()
-		local bufnr = utils.split_unless_open({ fname = config.buffer_name }, param.smods or {}, param.count)
+		local bufnr = utils.split_unless_open(
+			{ fname = config.buffer_name },
+			vim.tbl_extend("force", param.smods or {}, { noswapfile = true }),
+			param.count
+		)
 		utils.wait()
-		vim.api.nvim_set_current_win(prev_win)
+
+		if config.focus_compilation_buffer then
+			vim.api.nvim_set_current_win(vim.fn.win_findbuf(bufnr)[1])
+		else
+			vim.api.nvim_set_current_win(prev_win)
+		end
+
 		log.fmt_debug("bufnr = %d", bufnr)
 
 		utils.buf_set_opt(bufnr, "buftype", "nofile")
-		utils.buf_set_opt(bufnr, "filetype", "compilation")
 		utils.buf_set_opt(bufnr, "buflisted", not config.hidden_buffer)
 
 		-- reset compilation buffer
 		set_lines(bufnr, 0, -1, {})
 		utils.wait()
+
+		utils.buf_set_opt(bufnr, "filetype", "compilation")
 
 		if config.bang_expansion then
 			command = vim.fn.expandcmd(command)
@@ -279,7 +295,13 @@ local runcommand = a.void(
 		errors.highlight(bufnr)
 
 		log.fmt_debug("running command: %s", command)
+
+		local start_time = vim.loop.hrtime()
+
 		local line_count, code, job_id = runjob(command, bufnr, param)
+
+		local elapsed = (vim.loop.hrtime() - start_time) / 1e9
+
 		if job_id ~= vim.g.compile_job_id then
 			return
 		end
@@ -300,8 +322,10 @@ local runcommand = a.void(
 			compilation_message = "Compilation exited abnormally with code " .. tostring(code)
 		end
 
+		local fmt_elapsed = string.format(", duration %.2f s", elapsed)
+
 		set_lines(bufnr, -1, -1, {
-			compilation_message .. " at " .. time(),
+			compilation_message .. " at " .. time() ..  fmt_elapsed,
 			"",
 		})
 

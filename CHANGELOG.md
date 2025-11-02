@@ -8,6 +8,43 @@ Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
 
 ## [Unreleased]
 
+## [5.9.0] - 2025-09-28
+
+### Added
+
+- Duration information in the "compilation finished" messages - by [@Sheol27](https://github.com/Sheol27)
+
+### Fixed
+
+- Display the correct path when using `vim.g.compilation_directory` - by [@Sheol27](https://github.com/Sheol27)
+
+## [5.8.2] - 2025-09-13
+
+### Fixed
+
+- Follow the compilation window when `focus_compilation_buffer` is set, even if the compilation buffer was already open and just not focused - by [@mdnrz](https://github.com/mdnrz)
+- Performance improvements - by [@Sheol27](https://github.com/Sheol27)
+
+## [5.8.1] - 2025-09-08
+
+### Fixed
+
+- Moved when the `filetype` is set for the compilation buffer, which should hopefully improve performance - by [@Sheol27](https://github.com/Sheol27)
+
+## [5.8.0] - 2025-09-04
+
+### Added
+
+- The `focus_compilation_buffer` option, which keeps focus on the compilation buffer when compiling - solves [#69](https://github.com/ej-shafran/compile-mode.nvim/issues/69), by [@arnevm123](https://github.com/arnevm123)
+
+## [5.7.1] - 2025-09-04
+
+### Fixed
+
+- Disable swapfile for compilation buffer - fixes [#41](https://github.com/ej-shafran/compile-mode.nvim/issues/41), by [@PrescientSentinel](https://github.com/PrescientSentinel)
+- Strip carriage returns from the end of lines - fixes [#72](https://github.com/ej-shafran/compile-mode.nvim/issues/72), by [@StillTree](https://github.com/StillTree)
+- Removed warnings for "unrecognized keys" for the `error_ignore_file_list` and `hidden_output` options - fixes [#78](https://github.com/ej-shafran/compile-mode.nvim/issues/78), by [@arnevm123](https://github.com/arnevm123)
+
 ## [5.7.0] - 2025-07-08
 
 ### Added
@@ -452,6 +489,11 @@ Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
     API functions
 
 [unreleased]: https://github.com/ej-shafran/compile-mode.nvim/compare/latest...nightly
+[5.9.0]: https://github.com/ej-shafran/compile-mode.nvim/compare/v5.8.2...v5.9.0
+[5.8.2]: https://github.com/ej-shafran/compile-mode.nvim/compare/v5.8.1...v5.8.2
+[5.8.1]: https://github.com/ej-shafran/compile-mode.nvim/compare/v5.8.0...v5.8.1
+[5.8.0]: https://github.com/ej-shafran/compile-mode.nvim/compare/v5.7.1...v5.8.0
+[5.7.1]: https://github.com/ej-shafran/compile-mode.nvim/compare/v5.7.0...v5.7.1
 [5.7.0]: https://github.com/ej-shafran/compile-mode.nvim/compare/v5.6.1...v5.7.0
 [5.6.1]: https://github.com/ej-shafran/compile-mode.nvim/compare/v5.6.0...v5.6.1
 [5.6.0]: https://github.com/ej-shafran/compile-mode.nvim/compare/v5.5.0...v5.6.0
