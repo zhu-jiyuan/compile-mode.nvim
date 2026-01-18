@@ -8,6 +8,53 @@ Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- **Command History Management**: Automatic tracking of all compilation commands with frequency-based sorting
+  - Commands are stored persistently in `~/.local/share/nvim/compile-mode-history.json`
+  - Configurable history size limit via `max_history_size` config option (default: 100)
+  - Filter by project and file type
+- **Bookmark System**: Save frequently used commands as bookmarks
+  - Support for file type filtering (single or multiple types)
+  - Support for project-based filtering using regex patterns
+  - Persistent storage in `~/.local/share/nvim/compile-mode-bookmarks.json`
+  - Import/export functionality
+- **UI Manager Buffer**: neogit/oil-style buffer interface for managing history and bookmarks
+  - View and execute commands from history or bookmarks
+  - Toggle between views with `t`
+  - Create bookmarks directly from history entries with `b`
+  - Delete entries with `d`
+  - Interactive help with `?`
+- **fzf-lua Integration**: Optional fuzzy search interface for history and bookmarks
+  - `:CompileFzfHistory` - Search command history
+  - `:CompileFzfBookmarks` - Search bookmarks
+  - `:CompileFzfRecent` - Show recent commands
+  - `:CompileFzfCombined` - Search both history and bookmarks
+  - Delete entries with `<Ctrl-D>` in fzf picker
+- **Custom Input System**: Modern floating window input replacing vim.ui.input
+  - Configurable via `use_custom_input` option (default: true)
+  - Supports keyboard navigation and completion
+  - Can be disabled to use original vim.ui.input
+- **New Commands**:
+  - `:CompileManager` - Open the manager UI
+  - `:CompileHistory` - Open history view
+  - `:CompileBookmarks` - Open bookmarks view
+  - `:CompileAddBookmark <name> <command>` - Add a bookmark
+  - `:CompileClearHistory` - Clear all history
+
+### Changed
+
+- Converted VimScript completion functions to pure Lua in `lua/compile-mode/completion.lua`
+- All plugin code is now 100% Lua (no VimScript dependencies)
+- Command history is now automatically tracked on every compilation
+
+### Migration Notes
+
+- The new features are opt-in via configuration
+- Existing workflows are fully compatible
+- To disable custom input: set `use_custom_input = false` in config
+- History and bookmarks start empty and build up with usage
+
 ## [5.9.0] - 2025-09-28
 
 ### Added
