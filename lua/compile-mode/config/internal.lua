@@ -55,6 +55,12 @@ local default_config = {
 
 	--- @type boolean
 	focus_compilation_buffer = false,
+	
+	--- @type integer Maximum number of commands to keep in history
+	max_history_size = 100,
+	
+	--- @type boolean Use custom input buffer instead of vim.ui.input
+	use_custom_input = true,
 }
 
 local user_config = type(vim.g.compile_mode) == "function" and vim.g.compile_mode() or vim.g.compile_mode

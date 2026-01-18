@@ -441,16 +441,25 @@ M.compile = a.void(
 
 		local command = param.args
 		if not command or command == "" then
-			local input_completion_func = "CompileInputComplete"
-			if package.loaded["cmp_cmdline_prompt"] or config.input_word_completion then
-				input_completion_func = "CompileInputCompleteWord"
-			end
+			-- Use custom input if configured
+			if config.use_custom_input then
+				local custom_input = require("compile-mode.input")
+				command = custom_input.input_sync({
+					prompt = "Compile command",
+					default = vim.g.compile_command or config.default_command,
+				})
+			else
+				local input_completion_func = "CompileInputComplete"
+				if package.loaded["cmp_cmdline_prompt"] or config.input_word_completion then
+					input_completion_func = "CompileInputCompleteWord"
+				end
 
-			command = utils.input({
-				prompt = "Compile command: ",
-				default = vim.g.compile_command or config.default_command,
-				completion = ("customlist,%s"):format(input_completion_func),
-			})
+				command = utils.input({
+					prompt = "Compile command: ",
+					default = vim.g.compile_command or config.default_command,
+					completion = ("customlist,%s"):format(input_completion_func),
+				})
+			end
 		end
 
 		if command == nil then
@@ -459,6 +468,12 @@ M.compile = a.void(
 
 		vim.g.compile_command = command
 		compilation_directory = vim.g.compilation_directory or vim.fn.getcwd()
+
+		-- Add to history
+		local history = require("compile-mode.history")
+		local filetype = vim.bo.filetype ~= "" and vim.bo.filetype or nil
+		local project = vim.fn.getcwd()
+		history.add(command, { filetype = filetype, project = project })
 
 		runcommand(command, param)
 		vim.g.compilation_directory = nil
@@ -823,5 +838,19 @@ function M._follow_cursor()
 		vim.notify("Current locus from " .. vim.fn.bufname(compilation_buffer))
 	end)
 end
+
+-- Initialize history and bookmarks systems
+local function initialize_subsystems()
+	local history = require("compile-mode.history")
+	local bookmarks = require("compile-mode.bookmarks")
+	
+	history.setup()
+	bookmarks.setup()
+end
+
+-- Run initialization on first load
+vim.schedule(function()
+	initialize_subsystems()
+end)
 
 return M
