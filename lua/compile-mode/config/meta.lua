@@ -95,6 +95,10 @@
 ---Use a pseudo terminal for command execution.
 ---For more info, run `:h compile-mode.use_pseudo_terminal`
 ---@field use_pseudo_terminal?      boolean
+---
+---Maximum number of commands to keep in history.
+---For more info, run `:h compile-mode.max_history`
+---@field max_history?              integer
 
 ---@type CompileModeOpts
 vim.g.compile_mode = vim.g.compile_mode

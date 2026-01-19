@@ -118,7 +118,10 @@ function M.matchlistpos(input, pattern, compiled_rx)
 end
 
 ---@type fun(opts: table): string
-M.input = a.wrap(vim.ui.input, 2)
+M.input = a.wrap(function(opts, callback)
+	local custom_input = require("compile-mode.input")
+	custom_input.open(opts, callback)
+end, 2)
 
 ---@type fun()
 M.wait = a.wrap(vim.schedule, 1)

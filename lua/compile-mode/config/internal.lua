@@ -52,6 +52,8 @@ local default_config = {
 	use_circular_error_navigation = false,
 	---@type boolean
 	use_pseudo_terminal = false,
+	---@type integer
+	max_history = 100,
 }
 
 local user_config = type(vim.g.compile_mode) == "function" and vim.g.compile_mode() or vim.g.compile_mode

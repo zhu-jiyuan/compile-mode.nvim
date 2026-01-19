@@ -573,6 +573,10 @@ M.compile = a.void(
 		vim.g.compile_command = command
 		compilation_directory = vim.g.compilation_directory or vim.fn.getcwd()
 
+		-- Add command to history
+		local history = require("compile-mode.history")
+		history.add(command, compilation_directory)
+
 		runcommand(command, param)
 		vim.g.compilation_directory = nil
 	end
@@ -936,6 +940,71 @@ function M._follow_cursor()
 		end)
 		vim.notify("Current locus from " .. vim.fn.bufname(compilation_buffer))
 	end)
+end
+
+--- SETUP AND NEW FEATURES
+
+---Setup compile-mode with extended features
+---@param opts table? Configuration options
+function M.setup(opts)
+	opts = opts or {}
+
+	-- Initialize history system
+	local history = require("compile-mode.history")
+	history.setup({
+		max_history = opts.max_history or 100,
+	})
+
+	-- Initialize bookmarks system
+	local bookmarks = require("compile-mode.bookmarks")
+	bookmarks.setup(opts)
+end
+
+---Open the command history/bookmark manager
+function M.open_manager()
+	local manager = require("compile-mode.manager")
+	manager.open()
+end
+
+---Toggle the command history/bookmark manager
+function M.toggle_manager()
+	local manager = require("compile-mode.manager")
+	manager.toggle()
+end
+
+---Pick from history using fzf-lua
+function M.pick_history()
+	local fzf = require("compile-mode.fzf")
+	fzf.pick_history()
+end
+
+---Pick from bookmarks using fzf-lua
+function M.pick_bookmarks()
+	local fzf = require("compile-mode.fzf")
+	fzf.pick_bookmarks()
+end
+
+---Pick from both history and bookmarks using fzf-lua
+function M.pick_all()
+	local fzf = require("compile-mode.fzf")
+	fzf.pick_all()
+end
+
+---Add a bookmark
+---@param bookmark Bookmark
+function M.add_bookmark(bookmark)
+	local bookmarks = require("compile-mode.bookmarks")
+	bookmarks.add(bookmark)
+end
+
+---Get history module
+function M.get_history()
+	return require("compile-mode.history")
+end
+
+---Get bookmarks module
+function M.get_bookmarks()
+	return require("compile-mode.bookmarks")
 end
 
 return M

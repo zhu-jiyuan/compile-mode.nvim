@@ -1,6 +1,9 @@
 local command = vim.api.nvim_create_user_command
 local compile_mode = require("compile-mode")
 
+-- Initialize the new features
+compile_mode.setup()
+
 command("Compile", compile_mode.compile, {
 	nargs = "?",
 	bang = true,
@@ -21,3 +24,11 @@ command("QuickfixErrors", function()
 	vim.cmd("botright copen")
 end, {})
 command("NextErrorFollow", compile_mode.next_error_follow, {})
+
+-- New commands for history and bookmarks
+command("CompileHistory", compile_mode.open_manager, {})
+command("CompileToggleManager", compile_mode.toggle_manager, {})
+command("CompilePickHistory", compile_mode.pick_history, {})
+command("CompilePickBookmarks", compile_mode.pick_bookmarks, {})
+command("CompilePickAll", compile_mode.pick_all, {})
+
