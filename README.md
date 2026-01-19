@@ -10,10 +10,23 @@ rerun that command over and over again as much as you need.
 
 [Compile Mode Features](https://github.com/ej-shafran/compile-mode.nvim/assets/116496520/5541b9dd-70b7-4647-9c13-9e57813dac27)
 
+### New in This Version
+
+- **Command History**: Automatically tracks and sorts commands by frequency
+- **Bookmarks**: Save frequently-used commands by filetype, project, or pattern
+- **Interactive Manager**: Neogit/oil.nvim-style UI for managing history and bookmarks
+- **FZF Integration**: Use fzf-lua to fuzzy-find and execute commands
+- **Custom Input Buffer**: Improved command input with floating window
+
+For detailed documentation on new features, see [NEW_FEATURES.md](NEW_FEATURES.md).
+
 ## Installation
 
 Use your favorite plugin manager. `compile-mode.nvim` depends on
 [plenary.nvim](https://github.com/nvim-lua/plenary.nvim).
+
+Optionally, for the best experience with the new history/bookmark features, install
+[fzf-lua](https://github.com/ibhagwan/fzf-lua).
 
 > [!WARNING]
 >
@@ -32,6 +45,8 @@ return {
   -- branch = "nightly",
   dependencies = {
     "nvim-lua/plenary.nvim",
+    -- Optional: for fuzzy finding history/bookmarks
+    -- "ibhagwan/fzf-lua",
     -- if you want to enable coloring of ANSI escape codes in
     -- compilation output, add:
     -- { "m00qek/baleia.nvim", tag = "v1.3.0" },
@@ -39,6 +54,9 @@ return {
   config = function()
     ---@type CompileModeOpts
     vim.g.compile_mode = {
+        -- configure maximum history entries (default: 100)
+        -- max_history = 100,
+
         -- if you use something like `nvim-cmp` or `blink.cmp` for completion,
         -- set this to fix tab completion in command mode:
         -- input_word_completion = true,
@@ -159,7 +177,34 @@ vim.g.compile_mode = {
     -- Use a pseudo terminal for command execution.
     -- :h compile-mode.use_pseudo_terminal
     use_pseudo_terminal = false,
+    -- Maximum number of commands to keep in history.
+    -- :h compile-mode.max_history
+    max_history = 100,
 }
+```
+
+## Commands
+
+### Core Commands
+
+- `:Compile [command]` - Run a compilation command
+- `:Recompile` - Rerun the last command
+- `:NextError` - Jump to the next error
+- `:PrevError` - Jump to the previous error
+- `:CurrentError` - Jump to the current error
+- `:FirstError` - Jump to the first error
+- `:QuickfixErrors` - Load errors into quickfix list
+- `:NextErrorFollow` - Toggle error preview mode
+
+### New History & Bookmark Commands
+
+- `:CompileHistory` - Open interactive history/bookmark manager
+- `:CompileToggleManager` - Toggle the manager window
+- `:CompilePickHistory` - Use fzf-lua to pick from history
+- `:CompilePickBookmarks` - Use fzf-lua to pick from bookmarks
+- `:CompilePickAll` - Use fzf-lua to pick from both history and bookmarks
+
+See [NEW_FEATURES.md](NEW_FEATURES.md) for detailed documentation on the new features.
 ```
 
 ## Contributing

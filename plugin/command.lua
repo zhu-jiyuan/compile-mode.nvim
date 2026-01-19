@@ -1,8 +1,11 @@
 local command = vim.api.nvim_create_user_command
 local compile_mode = require("compile-mode")
 
--- Initialize the new features
-compile_mode.setup()
+-- Initialize the new features with config
+local config = require("compile-mode.config.internal")
+compile_mode.setup({
+	max_history = config.max_history,
+})
 
 command("Compile", compile_mode.compile, {
 	nargs = "?",
