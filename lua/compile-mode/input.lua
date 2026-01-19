@@ -41,20 +41,26 @@ function M.open(opts, callback)
 		title_pos = "left",
 	})
 
-	-- Setup buffer options
-	vim.api.nvim_buf_set_option(input_buf, "buftype", "prompt")
+	-- Setup buffer options (use normal buffer, not prompt)
+	vim.api.nvim_buf_set_option(input_buf, "buftype", "nofile")
 	vim.api.nvim_buf_set_option(input_buf, "bufhidden", "wipe")
-
-	-- Set prompt
-	vim.fn.prompt_setprompt(input_buf, opts.prompt or "> ")
+	vim.api.nvim_buf_set_option(input_buf, "swapfile", false)
 
 	-- Set default text if provided
 	if opts.default and opts.default ~= "" then
 		vim.api.nvim_buf_set_lines(input_buf, 0, -1, false, { opts.default })
 		-- Move cursor to end of line
-		vim.cmd("startinsert!")
+		vim.schedule(function()
+			if vim.api.nvim_buf_is_valid(input_buf) then
+				vim.cmd("startinsert!")
+			end
+		end)
 	else
-		vim.cmd("startinsert")
+		vim.schedule(function()
+			if vim.api.nvim_buf_is_valid(input_buf) then
+				vim.cmd("startinsert")
+			end
+		end)
 	end
 
 	-- Setup keymaps
@@ -115,7 +121,7 @@ function M._submit()
 		return
 	end
 
-	-- Get the input text (skip prompt)
+	-- Get the input text
 	local lines = vim.api.nvim_buf_get_lines(input_buf, 0, -1, false)
 	local text = lines[1] or ""
 
@@ -124,7 +130,9 @@ function M._submit()
 
 	-- Call the callback with the input
 	if input_callback then
-		input_callback(text)
+		vim.schedule(function()
+			input_callback(text)
+		end)
 		input_callback = nil
 	end
 end
@@ -133,7 +141,9 @@ end
 function M._cancel()
 	M.close()
 	if input_callback then
-		input_callback(nil)
+		vim.schedule(function()
+			input_callback(nil)
+		end)
 		input_callback = nil
 	end
 end
